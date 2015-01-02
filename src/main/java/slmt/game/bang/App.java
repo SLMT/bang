@@ -1,12 +1,13 @@
 package slmt.game.bang;
 
-/**
- * Hello meow!
- */
+import slmt.game.bang.core.Game;
+
 public class App 
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello Meow!" );
+        Game game = new Game(8);
+        
+        while (true);
     }
 }
