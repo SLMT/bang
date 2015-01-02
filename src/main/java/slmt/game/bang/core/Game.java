@@ -13,41 +13,75 @@ import slmt.game.bang.core.roles.Outlaw;
 import slmt.game.bang.core.roles.Renegade;
 import slmt.game.bang.core.roles.Role;
 import slmt.game.bang.core.roles.Sheriff;
+import slmt.game.bang.ui.Logger;
 
 public class Game {
-	
+
 	private Player[] players;
-	private Card[] deck;
-	
+	private LinkedList<Card> deck;
+
+	// status
+	private int currentPlayer = 1; // start from 1
+
 	public Game(int numOfPlayers) {
 		if (numOfPlayers < 4 || numOfPlayers > 8)
-			throw new IllegalArgumentException("the number of players must be in 4 ~ 8");
-		
+			throw new IllegalArgumentException(
+					"the number of players must be in 4 ~ 8");
+
+		Logger.log("Game set up with " + numOfPlayers + " players.");
 		setUp(numOfPlayers);
+		Logger.log("Game starts!!");
 	}
-	
+
+	public void drawCards() {
+		players[currentPlayer - 1].draw(deck);
+	}
+
+	public int getCurrentPlayer() {
+		return currentPlayer;
+	}
+
+	public int getDistance(int p1, int p2) {
+		int distance1 = p1 - p2;
+		int distance2 = p2 - p1;
+
+		distance1 = (distance1 < 0) ? distance1 + players.length : distance1;
+		distance2 = (distance2 < 0) ? distance2 + players.length : distance2;
+
+		return Math.min(distance1, distance2);
+	}
+
 	private void setUp(int numOfPlayers) {
-		// Decide roles
+		// Create roles
 		Role[] roles = getInitialRoles(numOfPlayers);
 		shuffle(roles);
-		
-		// Decide characters
+
+		// Create characters
 		GameCharacter[] chs = getInitialCharacters();
 		shuffle(chs);
+
+		// Create deck
+		Card[] cards = getInitialCards();
+		shuffle(cards);
+		deck = new LinkedList<Card>();
+		for (int i = 0; i < cards.length; i++)
+			deck.add(cards[i]);
 		
 		// Create players
 		players = new Player[numOfPlayers];
-		for (int i = 0; i < numOfPlayers; i++)
+		for (int i = 0; i < numOfPlayers; i++) {
 			players[i] = new Player(roles[i], chs[i]);
-		
-		// Create deck
-		deck = getInitialCards();
-		shuffle(deck);
+			Logger.log("Player " + (i + 1) + " is " + players[i]);
+		}
+
+		// Draw initial cards for all players
+		for (int i = 0; i < numOfPlayers; i++)
+			players[i].drawInitialCards(deck);
 	}
-	
+
 	private void shuffle(Object[] objs) {
 		Random random = new Random();
-		
+
 		for (int i = 0; i < objs.length; i++) {
 			// swap an object with another randomly chosen object
 			int another = random.nextInt(objs.length);
@@ -56,36 +90,36 @@ public class Game {
 			objs[another] = tmp;
 		}
 	}
-	
+
 	private Role[] getInitialRoles(int numOfPlayers) {
 		List<Role> roles = new LinkedList<Role>();
-		
+
 		// Add basic roles
 		roles.add(new Sheriff());
 		roles.add(new Renegade());
 		roles.add(new Outlaw());
 		roles.add(new Outlaw());
-		
+
 		// Add other roles according to the number of players
-		Role[] otherRoles = new Role[] {new DeputySheriff(), new Outlaw(),
+		Role[] otherRoles = new Role[] { new DeputySheriff(), new Outlaw(),
 				new DeputySheriff(), new Renegade() };
 		for (int i = 0; i < numOfPlayers - 4; i++)
 			roles.add(otherRoles[i]);
-		
+
 		return roles.toArray(new Role[numOfPlayers]);
 	}
-	
+
 	private GameCharacter[] getInitialCharacters() {
 		// XXX: Update after adding other characters
 		GameCharacter[] chs = new GameCharacter[8];
 		for (int i = 0; i < chs.length; i++)
-			chs[i] = new DummyCharacter();
+			chs[i] = new DummyCharacter(i + 1);
 		return chs;
 	}
-	
+
 	private Card[] getInitialCards() {
 		// XXX: Update after adding other cards
-		Card[] cards = new Card[52];
+		Card[] cards = new Card[100];
 		for (int i = 0; i < cards.length; i++)
 			cards[i] = new BangCard();
 		return cards;

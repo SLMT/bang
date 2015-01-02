@@ -4,4 +4,6 @@ public interface GameCharacter {
 
 	int getInitHP();
 	
+	int getNumOfDraw();
+	
 }

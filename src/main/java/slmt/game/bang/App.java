@@ -8,6 +8,6 @@ public class App
     {
         Game game = new Game(8);
         
-        while (true);
+        game.drawCards();
     }
 }
