@@ -19,6 +19,7 @@ public class Game {
 
 	private Player[] players;
 	private LinkedList<Card> deck;
+	private LinkedList<Card> usedCards;
 
 	// status
 	private int currentPlayer = 1; // start from 1
@@ -34,11 +35,28 @@ public class Game {
 	}
 
 	public void drawCards() {
-		players[currentPlayer - 1].draw(deck);
+		getCurrentPlayer().draw(deck);
 	}
-
-	public int getCurrentPlayer() {
-		return currentPlayer;
+	
+	public void useCard(int index, int targetPlayer) {
+		Player curP = getCurrentPlayer();
+		Player tarP = players[targetPlayer - 1];
+		
+		Card usedCard = curP.useCard(index, tarP);
+		usedCards.add(usedCard);
+	}
+	
+	public String printCurrentPlayerStatus() {
+		StringBuilder sb = new StringBuilder();
+		Player player = getCurrentPlayer();
+		
+		sb.append("Name: " + player.getCharacter() + "\n");
+		sb.append("Role: " + player.getRole() + "\n");
+		sb.append("HP: " + player.getHp() + "\n");
+		sb.append("Hand: " + player.printHand() + "\n");
+		sb.append("Equipments: " + player.printEquipments() + "\n");
+		
+		return sb.toString();
 	}
 
 	public int getDistance(int p1, int p2) {
@@ -66,6 +84,8 @@ public class Game {
 		deck = new LinkedList<Card>();
 		for (int i = 0; i < cards.length; i++)
 			deck.add(cards[i]);
+		
+		usedCards = new LinkedList<Card>();
 		
 		// Create players
 		players = new Player[numOfPlayers];
@@ -123,5 +143,9 @@ public class Game {
 		for (int i = 0; i < cards.length; i++)
 			cards[i] = new BangCard();
 		return cards;
+	}
+	
+	private Player getCurrentPlayer() {
+		return players[currentPlayer - 1];
 	}
 }

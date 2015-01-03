@@ -1,6 +1,7 @@
 package slmt.game.bang.core;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import slmt.game.bang.core.cards.Card;
 import slmt.game.bang.core.characters.GameCharacter;
@@ -12,31 +13,31 @@ public class Player {
 	// abilities
 	private Role role;
 	private GameCharacter character;
-	
+
 	// status
 	private int HP;
-	
+
 	// cards
 	private LinkedList<Card> hand;
 	private LinkedList<Card> equipments;
-	
+
 	public Player(Role role, GameCharacter character) {
 		this.role = role;
 		this.character = character;
-		
+
 		this.HP = character.getInitHP() + role.getBonusHP();
 		this.hand = new LinkedList<Card>();
 		this.equipments = new LinkedList<Card>();
 	}
-	
+
 	public void drawInitialCards(LinkedList<Card> deck) {
-		int num = HP;
+		int num = character.getInitHP() + role.getBonusHP();
 		for (int i = 0; i < num; i++)
 			hand.add(deck.poll());
 
 		Logger.log(character.toString() + " have " + num + " cards.");
 	}
-	
+
 	public void draw(LinkedList<Card> deck) {
 		int num = character.getNumOfDraw();
 		for (int i = 0; i < num; i++)
@@ -44,13 +45,67 @@ public class Player {
 
 		Logger.log(character.toString() + " draw " + num + " cards.");
 	}
-	
+
+	/**
+	 * Use the specified card to a specified player.
+	 * 
+	 * @param index
+	 *            the index of the card in hand
+	 * @param targetPlayer
+	 *            the target player
+	 * @return the card this player just used.
+	 */
+	public Card useCard(int index, Player targetPlayer) {
+		Card card = hand.remove(index);
+		
+		Logger.log(character.toString() + " use " + card + " to " + targetPlayer.getCharacter() + ".");
+		
+		card.useFunction(this, targetPlayer);
+		return card;
+	}
+
+	public void beBang() {
+		this.HP--;
+		Logger.log(character.toString() + " get 1 damage and leave " + HP + " HP.");
+	}
+
+	public String printHand() {
+		return printCards(hand);
+	}
+
+	public String printEquipments() {
+		return printCards(equipments);
+	}
+
 	public int getHp() {
 		return HP;
 	}
-	
+
+	public GameCharacter getCharacter() {
+		return character;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
 	@Override
 	public String toString() {
 		return role.toString() + ", " + character.toString();
+	}
+
+	private String printCards(List<Card> cards) {
+		if (cards.isEmpty())
+			return "No cards";
+
+		StringBuilder sb = new StringBuilder();
+		int index = 1;
+		for (Card card : cards) {
+			sb.append(index++);
+			sb.append(" ");
+			sb.append(card);
+			sb.append(", ");
+		}
+		return sb.substring(0, sb.length() - 2);
 	}
 }
