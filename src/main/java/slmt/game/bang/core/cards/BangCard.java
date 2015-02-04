@@ -6,8 +6,8 @@ import slmt.game.bang.core.Player;
 public class BangCard implements Card {
 	
 	@Override
-	public void useFunction(Player usingPlayer, Player targetPlayer) {
-		targetPlayer.beBang();
+	public void use(Player usingPlayer, Player targetPlayer) {
+		targetPlayer.beBanged();
 	}
 	
 	@Override

@@ -22,8 +22,8 @@ public class Game {
 	private LinkedList<Card> usedCards;
 
 	// status
-	private int currentPlayer = 1; // start from 1
-
+	private int nextPlayerNum; // start from 1
+	
 	public Game(int numOfPlayers) {
 		if (numOfPlayers < 4 || numOfPlayers > 8)
 			throw new IllegalArgumentException(
@@ -33,30 +33,17 @@ public class Game {
 		setUp(numOfPlayers);
 		Logger.log("Game starts!!");
 	}
-
-	public void drawCards() {
-		getCurrentPlayer().draw(deck);
-	}
 	
-	public void useCard(int index, int targetPlayer) {
-		Player curP = getCurrentPlayer();
-		Player tarP = players[targetPlayer - 1];
+	public Turn nextTurn() {
+		int activePlayerNum = -1;
 		
-		Card usedCard = curP.useCard(index, tarP);
-		usedCards.add(usedCard);
-	}
-	
-	public String printCurrentPlayerStatus() {
-		StringBuilder sb = new StringBuilder();
-		Player player = getCurrentPlayer();
+		do {
+			activePlayerNum = nextPlayerNum;
+			// iterater to next number
+			nextPlayerNum = (nextPlayerNum < players.length)? nextPlayerNum + 1 : 0;
+		} while (getPlayer(activePlayerNum).isDead());
 		
-		sb.append("Name: " + player.getCharacter() + "\n");
-		sb.append("Role: " + player.getRole() + "\n");
-		sb.append("HP: " + player.getHp() + "\n");
-		sb.append("Hand: " + player.printHand() + "\n");
-		sb.append("Equipments: " + player.printEquipments() + "\n");
-		
-		return sb.toString();
+		return new Turn(this, activePlayerNum);
 	}
 
 	public int getDistance(int p1, int p2) {
@@ -67,6 +54,24 @@ public class Game {
 		distance2 = (distance2 < 0) ? distance2 + players.length : distance2;
 
 		return Math.min(distance1, distance2);
+	}
+	
+	/**
+	 * Get the i-th player.
+	 * 
+	 * @param num the index of the player, starting from 1
+	 * @return the i-th player
+	 */
+	Player getPlayer(int num) {
+		return players[num - 1];
+	}
+	
+	LinkedList<Card> getDeck() {
+		return deck;
+	}
+	
+	void addAUsedCard(Card card) {
+		usedCards.add(card);
 	}
 
 	private void setUp(int numOfPlayers) {
@@ -92,6 +97,10 @@ public class Game {
 		for (int i = 0; i < numOfPlayers; i++) {
 			players[i] = new Player(roles[i], chs[i]);
 			Logger.log("Player " + (i + 1) + " is " + players[i]);
+			
+			// Check whether he is the first player
+			if (roles[i].getClass().equals(Sheriff.class))
+				nextPlayerNum = i + 1;
 		}
 
 		// Draw initial cards for all players
@@ -143,9 +152,5 @@ public class Game {
 		for (int i = 0; i < cards.length; i++)
 			cards[i] = new BangCard();
 		return cards;
-	}
-	
-	private Player getCurrentPlayer() {
-		return players[currentPlayer - 1];
 	}
 }

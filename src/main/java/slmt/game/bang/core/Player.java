@@ -16,6 +16,7 @@ public class Player {
 
 	// status
 	private int HP;
+	private boolean isDead = false;
 
 	// cards
 	private LinkedList<Card> hand;
@@ -47,7 +48,7 @@ public class Player {
 	}
 
 	/**
-	 * Use the specified card to a specified player.
+	 * Play a specified card to a specified player.
 	 * 
 	 * @param index
 	 *            the index of the card in hand
@@ -55,18 +56,27 @@ public class Player {
 	 *            the target player
 	 * @return the card this player just used.
 	 */
-	public Card useCard(int index, Player targetPlayer) {
+	public Card playACard(int index, Player targetPlayer) {
 		Card card = hand.remove(index);
 		
 		Logger.log(character.toString() + " use " + card + " to " + targetPlayer.getCharacter() + ".");
 		
-		card.useFunction(this, targetPlayer);
+		card.use(this, targetPlayer);
 		return card;
 	}
+	
+	public Card discardACard(int index) {
+		return hand.remove(index);
+	}
 
-	public void beBang() {
+	public void beBanged() {
 		this.HP--;
 		Logger.log(character.toString() + " get 1 damage and leave " + HP + " HP.");
+		
+		if (this.HP <= 0) {
+			isDead = true;
+			Logger.log(character.toString() + " is dead.");
+		}
 	}
 
 	public String printHand() {
@@ -79,6 +89,10 @@ public class Player {
 
 	public int getHp() {
 		return HP;
+	}
+	
+	public boolean isDead() {
+		return isDead;
 	}
 
 	public GameCharacter getCharacter() {
