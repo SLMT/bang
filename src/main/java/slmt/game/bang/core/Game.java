@@ -8,6 +8,8 @@ import slmt.game.bang.core.cards.BangCard;
 import slmt.game.bang.core.cards.Card;
 import slmt.game.bang.core.characters.DummyCharacter;
 import slmt.game.bang.core.characters.GameCharacter;
+import slmt.game.bang.core.listeners.GameEventListener;
+import slmt.game.bang.core.listeners.InputRequestListener;
 import slmt.game.bang.core.roles.DeputySheriff;
 import slmt.game.bang.core.roles.Outlaw;
 import slmt.game.bang.core.roles.Renegade;
@@ -24,14 +26,15 @@ public class Game {
 	// status
 	private int nextPlayerNum; // start from 1
 	
-	public Game(int numOfPlayers) {
-		if (numOfPlayers < 4 || numOfPlayers > 8)
-			throw new IllegalArgumentException(
-					"the number of players must be in 4 ~ 8");
-
-		Logger.log("Game set up with " + numOfPlayers + " players.");
+	// UI Listeners
+	private GameEventListener eventListener;
+	private InputRequestListener requestListener;
+	
+	public Game(int numOfPlayers, GameEventListener eventListener, InputRequestListener requestListener) {
+		this.eventListener = eventListener;
+		this.requestListener = requestListener;
+		
 		setUp(numOfPlayers);
-		Logger.log("Game starts!!");
 	}
 	
 	public Turn nextTurn() {
@@ -73,8 +76,13 @@ public class Game {
 	void addAUsedCard(Card card) {
 		usedCards.add(card);
 	}
-
+	
 	private void setUp(int numOfPlayers) {
+		// Check the number of players
+		if (numOfPlayers < 4 || numOfPlayers > 8)
+			throw new IllegalArgumentException(
+					"the number of players must be in 4 ~ 8");
+		
 		// Create roles
 		Role[] roles = getInitialRoles(numOfPlayers);
 		shuffle(roles);
